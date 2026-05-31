@@ -86,3 +86,39 @@ class TestTasksPagination:
             print(f"✅ Next URL preserves filters: {next_url}")
         else:
             print("ℹ️ No next page (database might be empty)")
+
+    def test_reject_negative_page(self):
+        """page must be >= 1"""
+        response = client.get("/api/v1/tasks?page=-1")
+
+        assert response.status_code == 422
+
+    def test_reject_zero_page(self):
+        """page must be >= 1"""
+        response = client.get("/api/v1/tasks?page=0")
+
+        assert response.status_code == 422
+
+    def test_reject_zero_per_page(self):
+        """per_page must be >= 1"""
+        response = client.get("/api/v1/tasks?per_page=0")
+
+        assert response.status_code == 422
+
+    def test_reject_negative_per_page(self):
+        """per_page must be >= 1"""
+        response = client.get("/api/v1/tasks?per_page=-5")
+
+        assert response.status_code == 422
+
+    def test_reject_oversized_per_page(self):
+        """per_page must be <= 100"""
+        response = client.get("/api/v1/tasks?per_page=101")
+
+        assert response.status_code == 422
+
+    def test_accept_max_per_page(self):
+        """per_page=100 should be accepted"""
+        response = client.get("/api/v1/tasks?per_page=100")
+
+        assert response.status_code == 200
